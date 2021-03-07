@@ -25,10 +25,12 @@ FarmBot::Application.routes.draw do
       tools: [:create, :destroy, :index, :show, :update],
       webcam_feeds: [:create, :destroy, :index, :show, :update],
       folders: [:create, :destroy, :index, :show, :update],
+      wizard_step_results: [:create, :destroy, :index, :update],
     }.to_a.map { |(name, only)| resources name, only: only }
 
     # Singular API Resources:
     {
+      feedback: [:create],
       demo_account: [:create],
       device: [:create, :destroy, :show, :update],
       fbos_config: [:destroy, :show, :update],

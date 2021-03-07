@@ -31,10 +31,11 @@ class Device < ApplicationRecord
     define_method(name) { super() || klass.create!(device: self) }
   end
 
-  has_many :in_use_tools
-  has_many :in_use_points
-  has_many :users
   has_many :folders
+  has_many :in_use_points
+  has_many :in_use_tools
+  has_many :users
+  has_many :wizard_step_results
 
   validates_presence_of :name
   validates :timezone, inclusion: {
@@ -44,6 +45,7 @@ class Device < ApplicationRecord
                        }
   validates :ota_hour,
     inclusion: { in: [*0..23], message: BAD_OTA_HOUR, allow_nil: true }
+  validates :fb_order_number, uniqueness: true, allow_nil: true
   before_validation :perform_gradual_upgrade
 
   # Give the user back the amount of logs they are allowed to view.
@@ -207,12 +209,12 @@ class Device < ApplicationRecord
   # SOLUTION: Perform a gradual update of legacy data.
   # TODO: Remove this method once FBOS < v12 hits EOL.
   def perform_gradual_upgrade
-    if ota_hour && timezone
+    if self[:ota_hour] && self[:timezone]
       valid = ActiveSupport::TimeZone[timezone].present?
       valid && self.ota_hour_utc = Device.get_utc_ota_hour(timezone, ota_hour)
     else
-      self.ota_hour = nil
-      self.ota_hour_utc = nil
+      self[:ota_hour] = nil
+      self[:ota_hour_utc] = nil
     end
   end
 
@@ -234,5 +236,26 @@ class Device < ApplicationRecord
 
   def send_upgrade_request
     Transport.current.amqp_send(UPGRADE_RPC, id, "from_clients")
+  end
+
+  def provide_feedback(message, slug = "Not provided")
+    webhook_url = ENV["FEEDBACK_WEBHOOK_URL"]
+    if webhook_url
+      email = self.users.pluck(:email).join(" ")
+      firmware_kind = fbos_config.firmware_hardware
+      payload = {
+        "text": [
+          "`Device ID`: #{id}",
+          "`Email`: #{email}",
+          "`Order Number`: #{fb_order_number}",
+          "`Model`: #{firmware_kind}",
+          "`Slug`: #{slug}",
+          "`Message`: #{message}"
+        ].join("\n")
+      }.to_json
+      Faraday.post(webhook_url,
+                   payload,
+                   "Content-Type" => "application/json")
+    end
   end
 end

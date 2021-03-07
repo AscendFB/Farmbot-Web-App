@@ -1,6 +1,6 @@
 import React from "react";
 import { ParameterManagementProps } from "./interfaces";
-import { Row, Col, BlurableInput, Help } from "../../ui/index";
+import { Row, Col, BlurableInput, Help, ToggleButton } from "../../ui";
 import { Header } from "./header";
 import { Collapse, Popover, Position } from "@blueprintjs/core";
 import { Content, DeviceSetting, ToolTips } from "../../constants";
@@ -13,11 +13,17 @@ import {
 import {
   ToggleHighlightModified,
 } from "../../photos/data_management/toggle_highlight_modified";
+import { BooleanSetting } from "../../session_keys";
+import { setWebAppConfigValue } from "../../config_storage/actions";
+import { getModifiedClassName, modifiedFromDefault } from "../default_values";
 
 export function ParameterManagement(props: ParameterManagementProps) {
-
-  const { dispatch, onReset, botOnline, arduinoBusy, firmwareHardware } = props;
+  const {
+    dispatch, onReset, botOnline, arduinoBusy, firmwareHardware,
+    getConfigValue,
+  } = props;
   const { parameter_management } = props.controlPanelState;
+  const showAdvanced = !!getConfigValue(BooleanSetting.show_advanced_settings);
   return <Highlight className={"section"}
     settingName={DeviceSetting.parameterManagement}>
     <Header
@@ -55,7 +61,7 @@ export function ParameterManagement(props: ParameterManagementProps) {
               className="fb-button yellow"
               disabled={arduinoBusy || !botOnline}
               title={t("RESEND")}
-              onClick={() => props.dispatch(resendParameters())}>
+              onClick={() => dispatch(resendParameters())}>
               {t("RESEND")}
             </button>
           </Col>
@@ -77,10 +83,24 @@ export function ParameterManagement(props: ParameterManagementProps) {
         </Row>
       </Highlight>
       <ParameterImport dispatch={dispatch} arduinoBusy={arduinoBusy} />
-      <Highlight settingName={DeviceSetting.highlightSettingsModifiedFromDefault}>
+      <Highlight settingName={DeviceSetting.highlightSettingsModifiedFromDefault}
+        hidden={!(showAdvanced
+          || modifiedFromDefault(BooleanSetting.highlight_modified_settings))}
+        className={"advanced"}>
         <ToggleHighlightModified
-          dispatch={props.dispatch}
-          getConfigValue={props.getConfigValue} />
+          dispatch={dispatch}
+          getConfigValue={getConfigValue} />
+      </Highlight>
+      <Highlight settingName={DeviceSetting.showAdvancedSettings}>
+        <div className={"show-advanced-toggle"}>
+          <label>{t(DeviceSetting.showAdvancedSettings)}</label>
+          <ToggleButton
+            className={getModifiedClassName(BooleanSetting.show_advanced_settings)}
+            toggleValue={!!showAdvanced}
+            toggleAction={() => dispatch(setWebAppConfigValue(
+              BooleanSetting.show_advanced_settings,
+              !showAdvanced))} />
+        </div>
       </Highlight>
       <Highlight settingName={DeviceSetting.resetHardwareParams}>
         <Row>
@@ -88,6 +108,7 @@ export function ParameterManagement(props: ParameterManagementProps) {
             <label style={{ lineHeight: "1.5rem" }}>
               {t(DeviceSetting.resetHardwareParams)}
             </label>
+            <Help text={Content.RESTORE_DEFAULT_HARDWARE_SETTINGS} />
           </Col>
           <Col xs={4} className={"centered-button-div"}>
             <button
@@ -99,7 +120,6 @@ export function ParameterManagement(props: ParameterManagementProps) {
             </button>
           </Col>
         </Row>
-        <Row><p>{t(Content.RESTORE_DEFAULT_HARDWARE_SETTINGS)}</p></Row>
       </Highlight>
     </Collapse>
   </Highlight>;

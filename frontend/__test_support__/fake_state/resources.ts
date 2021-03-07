@@ -27,6 +27,7 @@ import {
   TaggedPointGroup,
   TaggedFolder,
   TaggedWeedPointer,
+  TaggedWizardStepResult,
 } from "farmbot";
 import { fakeResource } from "../fake_resource";
 import {
@@ -216,6 +217,18 @@ export function fakeWebcamFeed(): TaggedWebcamFeed {
   });
 }
 
+export function fakeWizardStepResult(): TaggedWizardStepResult {
+  const id = idCounter++;
+  return fakeResource("WizardStepResult", {
+    id,
+    created_at: "2018-01-11T20:20:38.362Z",
+    updated_at: "2018-01-11T20:20:38.362Z",
+    slug: "step",
+    answer: false,
+    outcome: "error",
+  });
+}
+
 export function fakePinBinding(): TaggedPinBinding {
   return fakeResource("PinBinding", {
     id: idCounter++,
@@ -298,6 +311,7 @@ export function fakeWebAppConfig(): TaggedWebAppConfig {
     legend_menu_open: false,
     raw_encoders: true,
     scaled_encoders: true,
+    show_advanced_settings: true,
     show_spread: false,
     show_farmbot: true,
     show_images: false,

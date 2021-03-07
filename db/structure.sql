@@ -41,6 +41,8 @@ CREATE TYPE public.special_action AS ENUM (
 
 SET default_tablespace = '';
 
+SET default_table_access_method = heap;
+
 --
 -- Name: active_storage_attachments; Type: TABLE; Schema: public; Owner: -
 --
@@ -308,7 +310,8 @@ CREATE TABLE public.devices (
     first_saw_api timestamp without time zone,
     ota_hour_utc integer,
     last_watchdog timestamp without time zone,
-    last_ota_attempt_at timestamp without time zone
+    last_ota_attempt_at timestamp without time zone,
+    fb_order_number character varying
 );
 
 
@@ -1430,7 +1433,7 @@ CREATE VIEW public.resource_update_steps AS
             edge_nodes.kind,
             edge_nodes.value
            FROM public.edge_nodes
-          WHERE (((edge_nodes.kind)::text = 'resource_type'::text) AND ((edge_nodes.value)::text = ANY ((ARRAY['"GenericPointer"'::character varying, '"ToolSlot"'::character varying, '"Plant"'::character varying])::text[])))
+          WHERE (((edge_nodes.kind)::text = 'resource_type'::text) AND ((edge_nodes.value)::text = ANY (ARRAY[('"GenericPointer"'::character varying)::text, ('"ToolSlot"'::character varying)::text, ('"Plant"'::character varying)::text])))
         ), resource_id AS (
          SELECT edge_nodes.primary_node_id,
             edge_nodes.kind,
@@ -1803,7 +1806,8 @@ CREATE TABLE public.web_app_configs (
     crop_images boolean DEFAULT false,
     show_camera_view_area boolean DEFAULT false,
     view_celery_script boolean DEFAULT false,
-    highlight_modified_settings boolean DEFAULT false
+    highlight_modified_settings boolean DEFAULT true,
+    show_advanced_settings boolean DEFAULT false
 );
 
 
@@ -1857,6 +1861,40 @@ CREATE SEQUENCE public.webcam_feeds_id_seq
 --
 
 ALTER SEQUENCE public.webcam_feeds_id_seq OWNED BY public.webcam_feeds.id;
+
+
+--
+-- Name: wizard_step_results; Type: TABLE; Schema: public; Owner: -
+--
+
+CREATE TABLE public.wizard_step_results (
+    id bigint NOT NULL,
+    created_at timestamp(6) without time zone NOT NULL,
+    updated_at timestamp(6) without time zone NOT NULL,
+    device_id bigint NOT NULL,
+    slug character varying NOT NULL,
+    answer boolean,
+    outcome character varying
+);
+
+
+--
+-- Name: wizard_step_results_id_seq; Type: SEQUENCE; Schema: public; Owner: -
+--
+
+CREATE SEQUENCE public.wizard_step_results_id_seq
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
+
+--
+-- Name: wizard_step_results_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: -
+--
+
+ALTER SEQUENCE public.wizard_step_results_id_seq OWNED BY public.wizard_step_results.id;
 
 
 --
@@ -2165,6 +2203,13 @@ ALTER TABLE ONLY public.web_app_configs ALTER COLUMN id SET DEFAULT nextval('pub
 --
 
 ALTER TABLE ONLY public.webcam_feeds ALTER COLUMN id SET DEFAULT nextval('public.webcam_feeds_id_seq'::regclass);
+
+
+--
+-- Name: wizard_step_results id; Type: DEFAULT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.wizard_step_results ALTER COLUMN id SET DEFAULT nextval('public.wizard_step_results_id_seq'::regclass);
 
 
 --
@@ -2533,6 +2578,14 @@ ALTER TABLE ONLY public.web_app_configs
 
 ALTER TABLE ONLY public.webcam_feeds
     ADD CONSTRAINT webcam_feeds_pkey PRIMARY KEY (id);
+
+
+--
+-- Name: wizard_step_results wizard_step_results_pkey; Type: CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.wizard_step_results
+    ADD CONSTRAINT wizard_step_results_pkey PRIMARY KEY (id);
 
 
 --
@@ -3117,6 +3170,13 @@ CREATE INDEX index_webcam_feeds_on_device_id ON public.webcam_feeds USING btree 
 
 
 --
+-- Name: index_wizard_step_results_on_device_id; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE INDEX index_wizard_step_results_on_device_id ON public.wizard_step_results USING btree (device_id);
+
+
+--
 -- Name: farm_events farm_events_device_id_fk; Type: FK CONSTRAINT; Schema: public; Owner: -
 --
 
@@ -3162,6 +3222,14 @@ ALTER TABLE ONLY public.sensors
 
 ALTER TABLE ONLY public.active_storage_variant_records
     ADD CONSTRAINT fk_rails_993965df05 FOREIGN KEY (blob_id) REFERENCES public.active_storage_blobs(id);
+
+
+--
+-- Name: wizard_step_results fk_rails_9958bb64ab; Type: FK CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.wizard_step_results
+    ADD CONSTRAINT fk_rails_9958bb64ab FOREIGN KEY (device_id) REFERENCES public.devices(id);
 
 
 --
@@ -3522,6 +3590,8 @@ INSERT INTO "schema_migrations" (version) VALUES
 ('20201216101103'),
 ('20210107224804'),
 ('20210201145935'),
-('20210210144434');
+('20210210144434'),
+('20210217010948'),
+('20210304221750');
 
 

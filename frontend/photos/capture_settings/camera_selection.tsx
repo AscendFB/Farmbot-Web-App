@@ -1,13 +1,14 @@
 import React from "react";
-import { DropDownItem, Row, Col, FBSelect } from "../../ui/index";
+import { DropDownItem, Row, Col, FBSelect } from "../../ui";
 import {
   CameraSelectionProps, CameraSelectionState,
 } from "./interfaces";
-import { info, error } from "../../toast/toast";
+import { error } from "../../toast/toast";
 import { UserEnv } from "../../devices/interfaces";
 import { t } from "../../i18next_wrapper";
 import { Content, ToolTips, DeviceSetting } from "../../constants";
 import { Highlight } from "../../settings/maybe_highlight";
+import { getModifiedClassNameSpecifyDefault } from "../../settings/default_values";
 
 /** Check if the camera has been disabled. */
 export const cameraDisabled = (env: UserEnv): boolean =>
@@ -73,14 +74,6 @@ export class CameraSelection
   selectedCamera = (): DropDownItem =>
     CAMERA_CHOICES_DDI()[parseCameraSelection(this.props.env)]
 
-  sendOffConfig = (selectedCamera: DropDownItem) => {
-    const { props } = this;
-    const configKey = "camera";
-    const config = { [configKey]: JSON.stringify(selectedCamera.value) };
-    info(t("Sending camera configuration..."), { title: t("Sending") });
-    props.dispatch(props.saveFarmwareEnv(configKey, config[configKey]));
-  }
-
   render() {
     return <Highlight settingName={DeviceSetting.camera}>
       <Row>
@@ -94,7 +87,11 @@ export class CameraSelection
             allowEmpty={false}
             list={CAMERA_CHOICES()}
             selectedItem={this.selectedCamera()}
-            onChange={this.sendOffConfig} />
+            onChange={ddi =>
+              this.props.dispatch(this.props.saveFarmwareEnv("camera",
+                JSON.stringify(ddi.value)))}
+            extraClass={getModifiedClassNameSpecifyDefault(
+              this.selectedCamera().value, Camera.USB)} />
         </Col>
       </Row>
     </Highlight>;

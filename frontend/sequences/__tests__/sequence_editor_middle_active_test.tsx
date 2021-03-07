@@ -36,6 +36,7 @@ jest.mock("../locals_list/locals_list", () => ({
 
 jest.mock("../../config_storage/actions", () => ({
   setWebAppConfigValue: jest.fn(),
+  getWebAppConfigValue: jest.fn(() => jest.fn()),
 }));
 
 import React from "react";
@@ -82,7 +83,7 @@ describe("<SequenceEditorMiddleActive />", () => {
       hardwareFlags: fakeHardwareFlags(),
       farmwareData: fakeFarmwareData(),
       getWebAppConfigValue: jest.fn(),
-      menuOpen: false,
+      menuOpen: undefined,
     };
   };
 

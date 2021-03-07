@@ -13,6 +13,9 @@ import {
   CAMERA_CALIBRATION_KEY_PART, WD_KEY_DEFAULTS,
 } from "../remote_env/constants";
 import { Collapse } from "@blueprintjs/core";
+import {
+  getModifiedClassNameDefaultFalse, getModifiedClassNameSpecifyModified,
+} from "../../settings/default_values";
 
 const RANGES = {
   H: { LOWEST: 0, HIGHEST: 179 },
@@ -47,7 +50,6 @@ export interface ImageWorkspaceProps extends NumericValues {
   botOnline: boolean;
   timeSettings: TimeSettings;
   namespace(key: CAMERA_CALIBRATION_KEY_PART): WDENVKey;
-  highlightModified: boolean;
 }
 
 /** Mapping of HSV values to FBOS Env variables. */
@@ -95,13 +97,13 @@ export class ImageWorkspace
 
   getModifiedClass =
     (key: CAMERA_CALIBRATION_KEY_PART & keyof ImageWorkspaceProps) =>
-      (this.props.highlightModified && (this.getDefault(key) != this.props[key]))
-        ? "modified"
-        : "";
+      getModifiedClassNameSpecifyModified(this.getDefault(key) != this.props[key]);
 
   render() {
     const { H_LO, H_HI, S_LO, S_HI, V_LO, V_HI } = this.props;
     const cameraCalibrationEnv = this.props.namespace("H_LO").includes("CAMERA");
+    const defaultHLow = this.getDefault(cameraCalibrationEnv ? "H_HI" : "H_LO");
+    const defaultHHigh = this.getDefault(cameraCalibrationEnv ? "H_LO" : "H_HI");
     return <div className="image-workspace">
       <Row>
         <Col xs={12} md={6}>
@@ -110,11 +112,17 @@ export class ImageWorkspace
           </h4>
           <label htmlFor="hue">{t("HUE")}</label>
           <Help text={t(ToolTips.COLOR_HUE_RANGE, {
-            defaultLow: this.getDefault(cameraCalibrationEnv ? "H_HI" : "H_LO"),
-            defaultHigh: this.getDefault(cameraCalibrationEnv ? "H_LO" : "H_HI"),
+            defaultLow: defaultHLow,
+            defaultHigh: defaultHHigh,
             defaultColor: cameraCalibrationEnv ? t("red") : t("green"),
           })} />
           <WeedDetectorSlider
+            className={[
+              getModifiedClassNameDefaultFalse(
+                Math.min(H_LO, H_HI) != defaultHLow) + "-start",
+              getModifiedClassNameDefaultFalse(
+                Math.max(H_LO, H_HI) != defaultHHigh) + "-end",
+            ].join(" ")}
             onRelease={this.onHslChange("H")}
             lowest={RANGES.H.LOWEST}
             highest={RANGES.H.HIGHEST}
@@ -126,6 +134,12 @@ export class ImageWorkspace
             defaultHigh: this.getDefault("S_HI"),
           })} />
           <WeedDetectorSlider
+            className={[
+              getModifiedClassNameDefaultFalse(
+                S_LO != this.getDefault("S_LO")) + "-start",
+              getModifiedClassNameDefaultFalse(
+                S_HI != this.getDefault("S_HI")) + "-end",
+            ].join(" ")}
             onRelease={this.onHslChange("S")}
             lowest={RANGES.S.LOWEST}
             highest={RANGES.S.HIGHEST}
@@ -137,6 +151,12 @@ export class ImageWorkspace
             defaultHigh: this.getDefault("V_HI"),
           })} />
           <WeedDetectorSlider
+            className={[
+              getModifiedClassNameDefaultFalse(
+                V_LO != this.getDefault("V_LO")) + "-start",
+              getModifiedClassNameDefaultFalse(
+                V_HI != this.getDefault("V_HI")) + "-end",
+            ].join(" ")}
             onRelease={this.onHslChange("V")}
             lowest={RANGES.V.LOWEST}
             highest={RANGES.V.HIGHEST}

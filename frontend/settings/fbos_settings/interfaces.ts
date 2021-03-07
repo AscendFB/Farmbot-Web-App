@@ -12,6 +12,11 @@ export interface NameRowProps {
   widget?: boolean;
 }
 
+export interface OrderNumberRowProps {
+  dispatch: Function;
+  device: TaggedDevice;
+}
+
 export interface TimezoneRowProps {
   dispatch: Function;
   device: TaggedDevice;
@@ -41,12 +46,14 @@ export interface PowerAndResetProps {
   dispatch: Function;
   sourceFbosConfig: SourceFbosConfig;
   botOnline: boolean;
+  showAdvanced: boolean;
 }
 
 export interface FactoryResetRowsProps {
   dispatch: Function;
   sourceFbosConfig: SourceFbosConfig;
   botOnline: boolean;
+  showAdvanced: boolean;
 }
 
 export interface FarmbotOsRowProps {

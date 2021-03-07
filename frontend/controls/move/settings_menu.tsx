@@ -1,35 +1,39 @@
 import React from "react";
 import { BooleanSetting } from "../../session_keys";
-import { ToggleButton } from "../../ui/toggle_button";
-import { ToggleWebAppBool, GetWebAppBool } from "./interfaces";
+import { ToggleButton } from "../../ui";
 import { BooleanConfigKey } from "farmbot/dist/resources/configs/web_app";
 import { t } from "../../i18next_wrapper";
 import { FirmwareHardware } from "farmbot";
 import { hasEncoders } from "../../settings/firmware/firmware_hardware_support";
 import { DeviceSetting } from "../../constants";
+import { getModifiedClassName } from "../../settings/default_values";
+import {
+  GetWebAppConfigValue, toggleWebAppBool,
+} from "../../config_storage/actions";
 
 export const moveWidgetSetting =
-  (toggle: ToggleWebAppBool, getValue: GetWebAppBool) =>
+  (dispatch: Function, getConfigValue: GetWebAppConfigValue) =>
     ({ label, setting }: { label: DeviceSetting, setting: BooleanConfigKey }) =>
       <fieldset>
         <label>
           {t(label)}
         </label>
         <ToggleButton
-          toggleAction={toggle(BooleanSetting[setting])}
-          toggleValue={getValue(setting)} />
+          className={getModifiedClassName(setting)}
+          toggleAction={() => dispatch(toggleWebAppBool(BooleanSetting[setting]))}
+          toggleValue={!!getConfigValue(setting)} />
       </fieldset>;
 
 export interface MoveWidgetSettingsMenuProps {
-  toggle: ToggleWebAppBool;
-  getValue: GetWebAppBool;
+  dispatch: Function;
+  getConfigValue: GetWebAppConfigValue;
   firmwareHardware: FirmwareHardware | undefined;
 }
 
 export const MoveWidgetSettingsMenu = (
-  { toggle, getValue, firmwareHardware }: MoveWidgetSettingsMenuProps,
+  { dispatch, getConfigValue, firmwareHardware }: MoveWidgetSettingsMenuProps,
 ) => {
-  const Setting = moveWidgetSetting(toggle, getValue);
+  const Setting = moveWidgetSetting(dispatch, getConfigValue);
   return <div className="move-settings-menu">
     <p>{t("Invert Jog Buttons")}</p>
     <Setting label={DeviceSetting.invertJogButtonXAxis}

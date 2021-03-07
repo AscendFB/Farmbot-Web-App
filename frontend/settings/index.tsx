@@ -28,6 +28,9 @@ import { AccountSettings } from "./account/account_settings";
 import { DevSettingsRows } from "./dev/dev_settings";
 import { bulkToggleControlPanel, ToggleSettingsOpen } from "./toggle_section";
 import { EnvEditor } from "../photos/data_management/env_editor";
+import { BooleanSetting } from "../session_keys";
+import { ChangeOwnershipForm } from "./transfer_ownership/change_ownership_form";
+import { SetupWizardSettings } from "../wizard/settings";
 
 export class RawDesignerSettings
   extends React.Component<DesignerSettingsProps, {}> {
@@ -46,7 +49,8 @@ export class RawDesignerSettings
       sourceFwConfig, sourceFbosConfig, resources,
     } = this.props;
     const { controlPanelState } = this.props.bot;
-    const commonProps = { dispatch, controlPanelState };
+    const showAdvanced = !!getConfigValue(BooleanSetting.show_advanced_settings);
+    const commonProps = { dispatch, controlPanelState, showAdvanced };
     const { value } = this.props.sourceFbosConfig("firmware_hardware");
     const firmwareHardware = isFwHardwareValue(value) ? value : undefined;
     const botOnline = isBotOnlineFromState(this.props.bot);
@@ -86,6 +90,7 @@ export class RawDesignerSettings
         <PowerAndReset {...commonProps}
           sourceFbosConfig={sourceFbosConfig}
           botOnline={botOnline} />
+        {botOnline && showAdvanced && <ChangeOwnershipForm />}
         <AxisSettings {...commonProps}
           bot={this.props.bot}
           sourceFwConfig={sourceFwConfig}
@@ -136,10 +141,14 @@ export class RawDesignerSettings
           searchTerm={this.props.searchTerm}
           getConfigValue={getConfigValue}
           sourceFbosConfig={sourceFbosConfig} />
-        {this.props.searchTerm == "env" &&
+        {this.props.searchTerm.toLowerCase() == "env" &&
           <EnvEditor
             dispatch={this.props.dispatch}
             farmwareEnvs={this.props.farmwareEnvs} />}
+        {this.props.searchTerm.toLowerCase() == "setup" &&
+          <SetupWizardSettings
+            dispatch={this.props.dispatch}
+            wizardStepResults={this.props.wizardStepResults} />}
         {this.props.searchTerm == "developer" &&
           <DevSettingsRows />}
         {ExtraSettings(this.props.searchTerm)}
