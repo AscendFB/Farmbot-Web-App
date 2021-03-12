@@ -16,6 +16,9 @@ import {
   MEASURE_SOIL_HEIGHT_NAME, soilHeightPoint, toggleSoilHeight,
 } from "./soil_height";
 import { moveAbsolute } from "../devices/actions";
+import { BotState } from "../devices/interfaces";
+import { MustBeOnline } from "../devices/must_be_online";
+import { getStatus } from "../connectivity/reducer_support";
 
 type PointUpdate =
   Partial<TaggedGenericPointer["body"] | TaggedWeedPointer["body"]>;
@@ -132,17 +135,23 @@ export interface PointActionsProps {
   z: number;
   uuid: UUID;
   dispatch: Function;
+  bot: BotState;
 }
 
-export const PointActions = ({ x, y, z, uuid, dispatch }: PointActionsProps) =>
+export const PointActions = ({ x, y, z, uuid, dispatch, bot }: PointActionsProps) =>
   <div className={"point-actions"}>
-    <button
-      className="fb-button gray no-float"
-      type="button"
-      title={t("move to location")}
-      onClick={() => moveAbsolute({ x, y, z })}>
-      {t("Move Device to location")}
-    </button>
+    <MustBeOnline
+      networkState={getStatus(bot.connectivity.uptime["bot.mqtt"])}
+      syncStatus={bot.hardware.informational_settings.sync_status}
+      hideBanner={true}>
+      <button
+        className="fb-button gray no-float"
+        type="button"
+        title={t("Move FarmBot here")}
+        onClick={() => moveAbsolute({ x, y, z })}>
+        {t("Move FarmBot here")}
+      </button>
+    </MustBeOnline>
     <button
       className="fb-button red no-float"
       title={t("delete")}

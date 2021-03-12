@@ -9,6 +9,7 @@ import { PlantStage, TaggedPoint } from "farmbot";
 import { TaggedPlant } from "../farm_designer/map/interfaces";
 import { isNumber, get } from "lodash";
 import { getWebAppConfigValue } from "../config_storage/actions";
+import { bot } from "../__test_support__/fake_state/bot";
 
 export function mapStateToProps(props: Everything): EditPlantInfoProps {
   const openedSavedGarden =
@@ -30,6 +31,7 @@ export function mapStateToProps(props: Everything): EditPlantInfoProps {
     dispatch: props.dispatch,
     timeSettings: maybeGetTimeSettings(props.resources.index),
     getConfigValue: getWebAppConfigValue(() => props),
+    bot: bot,
   };
 }
 

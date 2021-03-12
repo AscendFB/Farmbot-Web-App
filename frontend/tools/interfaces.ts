@@ -84,6 +84,7 @@ export interface AddEditToolSlotPropsBase {
   tools: TaggedTool[];
   dispatch: Function;
   botPosition: BotPosition;
+  bot: BotState;
   findTool(id: number): TaggedTool | undefined;
   firmwareHardware: FirmwareHardware | undefined;
   toolTransformProps: ToolTransformProps;

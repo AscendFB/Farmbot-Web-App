@@ -14,15 +14,18 @@ import {
 } from "../points/point_edit_actions";
 import { Actions } from "../constants";
 import { selectPoint } from "../farm_designer/map/actions";
+import { BotState } from "../devices/interfaces";
 
 export interface EditWeedProps {
   dispatch: Function;
   findPoint(id: number): TaggedWeedPointer | undefined;
+  bot: BotState;
 }
 
 export const mapStateToProps = (props: Everything): EditWeedProps => ({
   dispatch: props.dispatch,
   findPoint: id => maybeFindWeedPointerById(props.resources.index, id),
+  bot: props.bot,
 });
 
 export class RawEditWeed extends React.Component<EditWeedProps, {}> {
@@ -62,7 +65,8 @@ export class RawEditWeed extends React.Component<EditWeedProps, {}> {
               y={this.point.body.y}
               z={this.point.body.z}
               uuid={this.point.uuid}
-              dispatch={this.props.dispatch} />
+              dispatch={this.props.dispatch}
+              bot= {this.props.bot} />
           </div>
           : <span>{t("Redirecting")}...</span>}
       </DesignerPanelContent>

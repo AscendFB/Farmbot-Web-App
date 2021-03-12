@@ -38,6 +38,7 @@ import {
   setToolHover,
 } from "../../farm_designer/map/layers/tool_slots/tool_graphics";
 import { SpecialStatus } from "farmbot";
+import { bot } from "../../__test_support__/fake_state/bot";
 
 describe("<EditToolSlot />", () => {
   const fakeProps = (): EditToolSlotProps => ({
@@ -49,6 +50,7 @@ describe("<EditToolSlot />", () => {
     firmwareHardware: undefined,
     toolTransformProps: fakeToolTransformProps(),
     isActive: jest.fn(),
+    bot: bot,
   });
 
   it("redirects", () => {

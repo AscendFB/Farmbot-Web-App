@@ -15,6 +15,8 @@ import { mapStateToPropsEdit } from "./state_to_props";
 import { EditToolSlotProps, EditToolSlotState } from "./interfaces";
 import { setToolHover } from "../farm_designer/map/layers/tool_slots/tool_graphics";
 import { Popover } from "@blueprintjs/core";
+import { MustBeOnline } from "../devices/must_be_online";
+import { getStatus } from "../connectivity/reducer_support";
 
 export class RawEditToolSlot
   extends React.Component<EditToolSlotProps, EditToolSlotState> {
@@ -83,18 +85,23 @@ export class RawEditToolSlot
                 }
               })}
             </ul>
-            <button
-              className="fb-button gray no-float"
-              title={t("move to this location")}
-              onClick={() => {
-                const x = toolSlot.body.gantry_mounted
-                  ? this.props.botPosition.x ?? toolSlot.body.x
-                  : toolSlot.body.x;
-                const { y, z } = toolSlot.body;
-                moveAbsolute({ x, y, z });
-              }}>
-              {t("Move FarmBot to slot location")}
-            </button>
+            <MustBeOnline
+              syncStatus={this.props.bot.hardware.informational_settings.sync_status}
+              networkState={getStatus(this.props.bot.connectivity.uptime["bot.mqtt"])}
+              hideBanner={true}>
+              <button
+                className="fb-button gray no-float"
+                title={t("move to this location")}
+                onClick={() => {
+                  const x = toolSlot.body.gantry_mounted
+                    ? this.props.botPosition.x ?? toolSlot.body.x
+                    : toolSlot.body.x;
+                  const { y, z } = toolSlot.body;
+                  moveAbsolute({ x, y, z });
+                }}>
+                {t("Move FarmBot here")}
+              </button>
+            </MustBeOnline>
             <button
               className="fb-button red no-float"
               title={t("Delete")}

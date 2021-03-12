@@ -21,7 +21,7 @@ import {
 } from "farmbot";
 import { SlotWithTool, ResourceIndex, UUID } from "../resources/interfaces";
 import {
-  BotPosition, BotLocationData, ShouldDisplay, SourceFbosConfig,
+  BotPosition, BotLocationData, ShouldDisplay, SourceFbosConfig, BotState,
 } from "../devices/interfaces";
 import { isNumber } from "lodash";
 import {
@@ -277,6 +277,7 @@ export interface EditPlantInfoProps {
   openedSavedGarden: string | undefined;
   timeSettings: TimeSettings;
   getConfigValue: GetWebAppConfigValue;
+  bot: BotState;
 }
 
 export interface DraggableEvent {

@@ -476,6 +476,13 @@
   }
 }
 
+.point-actions{
+  display: inline-flex;
+  .unavailable{
+    display:inline-block;
+  }
+}
+
 .point-creation-panel {
   .panel-content {
     max-height: calc(100vh - 17rem);

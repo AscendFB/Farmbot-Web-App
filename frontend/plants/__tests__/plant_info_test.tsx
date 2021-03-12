@@ -18,6 +18,7 @@ import { EditPlantInfoProps } from "../../farm_designer/interfaces";
 import { push } from "../../history";
 import { fakeTimeSettings } from "../../__test_support__/fake_time_settings";
 import { edit, save, destroy } from "../../api/crud";
+import { bot } from "../../__test_support__/fake_state/bot";
 
 describe("<PlantInfo />", () => {
   const fakeProps = (): EditPlantInfoProps => ({
@@ -27,6 +28,7 @@ describe("<PlantInfo />", () => {
     openedSavedGarden: undefined,
     timeSettings: fakeTimeSettings(),
     getConfigValue: jest.fn(),
+    bot: bot,
   });
 
   it("renders", () => {
@@ -34,7 +36,7 @@ describe("<PlantInfo />", () => {
     ["Strawberry Plant 1", "Plant Type", "Strawberry"].map(string =>
       expect(wrapper.text().toLowerCase()).toContain(string.toLowerCase()));
     const buttons = wrapper.find("button");
-    expect(buttons.at(0).text()).toEqual("Move FarmBot to this plant");
+    expect(buttons.at(0).text()).toEqual("Move FarmBot here");
     expect(buttons.at(1).text()).toEqual("Planned");
   });
 

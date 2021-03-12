@@ -24,6 +24,7 @@ import { ToolPulloutDirection } from "farmbot/dist/resources/api_resources";
 import { mapStateToPropsAdd } from "../state_to_props";
 import { fakeToolTransformProps } from "../../__test_support__/fake_tool_info";
 import { AddToolSlotProps } from "../interfaces";
+import { bot } from "../../__test_support__/fake_state/bot";
 
 describe("<AddToolSlot />", () => {
   const fakeProps = (): AddToolSlotProps => ({
@@ -35,6 +36,7 @@ describe("<AddToolSlot />", () => {
     firmwareHardware: undefined,
     toolTransformProps: fakeToolTransformProps(),
     isActive: jest.fn(),
+    bot: bot,
   });
 
   it("renders", () => {

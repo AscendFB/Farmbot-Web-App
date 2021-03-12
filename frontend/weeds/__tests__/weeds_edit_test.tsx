@@ -17,11 +17,13 @@ import {
 import { Actions } from "../../constants";
 import { DesignerPanelHeader } from "../../farm_designer/designer_panel";
 import { push } from "../../history";
+import { bot } from "../../__test_support__/fake_state/bot";
 
 describe("<EditWeed />", () => {
   const fakeProps = (): EditWeedProps => ({
     dispatch: jest.fn(),
     findPoint: () => undefined,
+    bot: bot,
   });
 
   it("redirects", () => {

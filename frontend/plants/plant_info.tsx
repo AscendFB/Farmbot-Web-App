@@ -70,7 +70,8 @@ export class RawPlantInfo extends React.Component<EditPlantInfoProps, {}> {
         updatePlant={this.updatePlant}
         dispatch={this.props.dispatch}
         timeSettings={this.props.timeSettings}
-        inSavedGarden={!!this.props.openedSavedGarden} />
+        inSavedGarden={!!this.props.openedSavedGarden}
+        bot={this.props.bot} />
     </DesignerPanel>;
   }
 

@@ -6,7 +6,6 @@ import { BlurableInput, Row, Col } from "../ui";
 import { PlantOptions } from "../farm_designer/interfaces";
 import { PlantStage, Xyz } from "farmbot";
 import moment, { Moment } from "moment";
-import { Actions } from "../constants";
 import { Link } from "../link";
 import { DesignerPanelContent } from "../farm_designer/designer_panel";
 import { parseIntInput } from "../util";
@@ -14,6 +13,10 @@ import { startCase } from "lodash";
 import { t } from "../i18next_wrapper";
 import { TimeSettings } from "../interfaces";
 import { EditPlantStatus } from "./edit_plant_status";
+import { getDevice } from "../device";
+import { MustBeOnline } from "../devices/must_be_online";
+import { getStatus } from "../connectivity/reducer_support";
+import { BotState } from "../devices/interfaces";
 
 export interface PlantPanelProps {
   info: FormattedPlantInfo;
@@ -22,6 +25,7 @@ export interface PlantPanelProps {
   inSavedGarden: boolean;
   dispatch: Function;
   timeSettings?: TimeSettings;
+  bot: BotState;
 }
 
 interface EditPlantProperty {
@@ -89,15 +93,6 @@ export const EditPlantRadius = (props: EditPlantRadiusProps) =>
     </Col>
   </Row>;
 
-const chooseLocation = (to: Record<Xyz, number | undefined>) =>
-  (dispatch: Function): Promise<void> => {
-    dispatch({
-      type: Actions.CHOOSE_LOCATION,
-      payload: { x: to.x, y: to.y, z: to.z }
-    });
-    return Promise.resolve();
-  };
-
 interface MoveToPlantProps {
   x: number;
   y: number;
@@ -108,11 +103,9 @@ interface MoveToPlantProps {
 const MoveToPlant = (props: MoveToPlantProps) =>
   <button className="fb-button gray no-float"
     style={{ marginTop: "1rem" }}
-    title={t("Move to this plant")}
-    onClick={() =>
-      props.dispatch(chooseLocation({ x: props.x, y: props.y, z: props.z }))
-        .then(() => history.push("/app/designer/move_to"))}>
-    {t("Move FarmBot to this plant")}
+    title={t("Move FarmBot here")}
+    onClick={() => getDevice().moveAbsolute({ x: props.x, y: props.y, z: props.z })}>
+    {t("Move FarmBot here")}
   </button>;
 
 interface DeleteButtonsProps {
@@ -198,7 +191,13 @@ export function PlantPanel(props: PlantPanelProps) {
       <ListItem name={t("Size")}>
         <EditPlantRadius {...commonProps} radius={info.radius} />
       </ListItem>
-      <MoveToPlant x={x} y={y} z={z} dispatch={dispatch} />
+      <MustBeOnline
+        syncStatus={props.bot.hardware.informational_settings.sync_status}
+        networkState={getStatus(props.bot.connectivity.uptime["bot.mqtt"])}
+        hideBanner={true}>
+        <MoveToPlant
+          x={x} y={y} z={z} dispatch={dispatch} />
+      </MustBeOnline>
       <ListItem name={t("Status")}>
         {(!inSavedGarden)
           ? <EditPlantStatus {...commonProps} plantStatus={plantStatus} />

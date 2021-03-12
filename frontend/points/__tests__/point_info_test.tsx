@@ -22,6 +22,7 @@ import { fakeState } from "../../__test_support__/fake_state";
 import {
   buildResourceIndex,
 } from "../../__test_support__/resource_index_builder";
+import { bot } from "../../__test_support__/fake_state/bot";
 import { Xyz } from "farmbot";
 import { clickButton } from "../../__test_support__/helpers";
 import { destroy } from "../../api/crud";
@@ -29,10 +30,12 @@ import { DesignerPanelHeader } from "../../farm_designer/designer_panel";
 import { Actions } from "../../constants";
 import { push } from "../../history";
 
+
 describe("<EditPoint />", () => {
   const fakeProps = (): EditPointProps => ({
     findPoint: fakePoint,
     dispatch: jest.fn(),
+    bot: bot,
   });
 
   it("redirects", () => {

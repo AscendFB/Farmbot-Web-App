@@ -49,6 +49,7 @@ export const mapStateToPropsAddEditBase = (props: Everything):
     tools: selectAllTools(props.resources.index),
     dispatch: props.dispatch,
     botPosition: validBotLocationData(props.bot.hardware.location_data).position,
+    bot: props.bot,
     findTool: (id: number) => maybeFindToolById(props.resources.index, id),
     firmwareHardware: getFwHardwareValue(getFbosConfig(props.resources.index)),
     toolTransformProps: { xySwap, quadrant },
